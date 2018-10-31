@@ -19,7 +19,7 @@ void debug(char *fmt, ...) {
 
 int main(int argc, char **argv) {
   void *code;
-  int r;
+  int r, total = 0;
 
   debug_enabled = (getenv("DEBUG") != NULL) ? 1 : 0;
   code = mmap(NULL, SC_LENGTH, PROT_READ|PROT_WRITE|PROT_EXEC,
@@ -29,8 +29,14 @@ int main(int argc, char **argv) {
     return 1;
   }
   debug("Allocated 0x%08x bytes at %p.  Send shellcode now.\n", SC_LENGTH, code);
-  r = read(0, code, SC_LENGTH);
-  debug("Read 0x%08x bytes.  Executing.\n", r);
+  while (1) {
+    r = read(0, code + total, SC_LENGTH);
+    if (r <= 0) {
+      break;
+    }
+    total += r;
+  }
+  debug("Read 0x%08x bytes.  Executing.\n", total);
   ((void(*)())code)();
   return 0;
 }

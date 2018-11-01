@@ -1,2 +1,6 @@
 core
 *.pyc
+*
+!*/
+!runners/
+!*.*
